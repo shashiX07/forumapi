@@ -1,37 +1,32 @@
-// post.js (SQLite setup)
-const sqlite3 = require('sqlite3').verbose();
-const { open } = require('sqlite');
+const { createClient } = require('@supabase/supabase-js');
 
-// Initialize database connection
-async function initializeDB() {
-  return open({
-    filename: './forum.db',
-    driver: sqlite3.Database
-  });
-}
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
 
-// Create tables
-async function setupSchema(db) {
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS posts (
-      id TEXT PRIMARY KEY,
-      title TEXT NOT NULL,
-      description TEXT NOT NULL,
-      likes INTEGER DEFAULT 0,
-      likedBy TEXT DEFAULT '[]',
-      username TEXT NOT NULL,
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-    
-    CREATE TABLE IF NOT EXISTS comments (
-      id TEXT PRIMARY KEY,
-      postId TEXT NOT NULL,
-      text TEXT NOT NULL,
-      username TEXT NOT NULL,
-      createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY(postId) REFERENCES posts(id)
-    );
-  `);
-}
+// Note: The schema creation should be done manually in Supabase SQL Editor:
+/*
+CREATE TABLE posts (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL CHECK (length(title) BETWEEN 1 AND 100),
+  description TEXT NOT NULL CHECK (length(description) <= 2000),
+  likes INTEGER DEFAULT 0 CHECK (likes >= 0),
+  liked_by JSONB DEFAULT '[]'::jsonb,
+  username TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-module.exports = { initializeDB, setupSchema };
+CREATE TABLE comments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+  text TEXT NOT NULL CHECK (length(text) <= 500),
+  username TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX posts_created_at_idx ON posts(created_at);
+CREATE INDEX comments_post_id_idx ON comments(post_id);
+*/
+
+module.exports = { supabase };
