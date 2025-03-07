@@ -1,0 +1,16 @@
+{
+    "name": "json-api",
+    "version": "1.0.0",
+    "description": "JSON Server for kdag-forum",
+    "scripts": {
+        "start": "json-server --watch data.json --port 3001"
+    },
+    "dependencies": {
+        "json-server": "^1.0.0-beta.3"
+    },
+    "engines": {
+        "node": "16.x"
+    },
+    "author": "",
+    "license": "ISC"
+}
