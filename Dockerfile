@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3001
 
 # Start the JSON server
-CMD ["npm", "start"]
+CMD ["npx", "json-server", "--watch", "data.json", "--port", "3001"]
